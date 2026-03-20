@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Details</title>
+</head>
+<body>
+
+<h2>Student Details</h2>
+
+<!-- PERSONAL DETAILS -->
+<table id="personal-details" border="1">
+<tr>
+    <th>Roll Number</th>
+    <th>First Name</th>
+    <th>Last Name</th>
+</tr>
+
+<tr>
+    <td>{{ student.roll_number }}</td>
+    <td>{{ student.first_name }}</td>
+    <td>{{ student.last_name }}</td>
+</tr>
+</table>
+
+<br>
+
+<!-- ENROLLMENTS -->
+<table id="enroll-table" border="1">
+<tr>
+    <th>S. No.</th>
+    <th>Course Code</th>
+    <th>Course Name</th>
+    <th>Course Description</th>
+</tr>
+
+{% for e in enrollments %}
+<tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ e.course.course_code }}</td>
+    <td>{{ e.course.course_name }}</td>
+    <td>{{ e.course.course_description }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<br>
+
+<a href="/">Go Back</a>
+
+</body>
+</html>
