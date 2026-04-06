@@ -1,26 +1,45 @@
 from flask import Flask
-app = None
 from application.database import db
 from application.models import User
 
+
 def create_app():
     app = Flask(__name__)
+
+    # CONFIG
     app.debug = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///e-dine.sqlite3'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///placement.sqlite3'
+    app.secret_key = "mysecretkey123"
+
+    # INIT DB
     db.init_app(app)
-    app.app_context().push()
+
+    # REGISTER BLUEPRINT
+    from application.controllers import app as app_blueprint
+    app.register_blueprint(app_blueprint)
+
     return app
 
+
+# ✅ CREATE APP HERE (IMPORTANT)
 app = create_app()
 
-from application.controllers import *
 
+# RUN
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-        Manager = User.query.filter_by(role="manager").first()
-        if Manager is None:
-            Manager = User(username="manager1", email="manager@user.com", password="1234", role="manager")
-            db.session.add(Manager)
+
+        # Create default admin
+        admin = User.query.filter_by(role="admin").first()
+        if admin is None:
+            admin = User(
+                username="admin",
+                email="admin@portal.com",
+                password="admin123",
+                role="admin"
+            )
+            db.session.add(admin)
             db.session.commit()
-    app.run()
+
+    app.run(debug=True)

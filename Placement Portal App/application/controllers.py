@@ -1,8 +1,8 @@
-from flask import render_template, request, redirect, url_for, session
-from flask import current_app as app
+from flask import Blueprint, render_template, request, redirect, url_for, session
 from .models import *
 from .database import db
 
+app = Blueprint("app", __name__)
 
 # ---------------- HOME ----------------
 @app.route("/")
