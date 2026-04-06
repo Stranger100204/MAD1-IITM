@@ -5,21 +5,20 @@ class User(db.Model):
     username = db.Column(db.String(), unique=True, nullable=False)
     email = db.Column(db.String(), unique=True, nullable=False)
     password = db.Column(db.String(), nullable=False)
-    role = db.Column(db.String(), nullable=False, default='customer')
-    reservations = db.relationship('Reservation', backref='user')
+    role = db.Column(db.String(), nullable=False)
 
-class Table(db.Model):
+class Company(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    table_number = db.Column(db.String(), unique=True, nullable=False)
-    capacity = db.Column(db.Integer(), nullable=False)
-    location = db.Column(db.String(), nullable=False)
-    status = db.Column(db.String(), nullable=False, default='available')
-    reservations = db.relationship('Reservation', backref='table')
+    user_id = db.Column(db.String(), db.ForeignKey('user.id'))
+    company_name = db.Column(db.String(), nullable=False)
+    hr_contact = db.Column(db.String())
+    website = db.Column(db.String())
+    status = db.Column(db.String(), default='pending')
 
-class Reservation(db.Model):
+class Application(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=False)
-    table_id = db.Column(db.Integer(), db.ForeignKey('table.id'), nullable=False)
+    student_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=False)
+    drive_id = db.Column(db.Integer(), db.ForeignKey('placement_drive.id'), nullable=False)
     date = db.Column(db.String(), nullable=False)
     time_slot = db.Column(db.String(), nullable=False)
-    status = db.Column(db.String(), nullable=False, default='pending')
+    status = db.Column(db.String(), nullable=False, default='applied')
