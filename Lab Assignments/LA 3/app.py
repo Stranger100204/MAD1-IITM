@@ -1,285 +1,228 @@
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Resource, Api
+from flask_restful import Api, Resource
 
 app = Flask(__name__)
-api = Api(app)
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///api_database.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+api = Api(app)
 
-# ------------------ MODELS ------------------
+# ---------- MODELS ----------
+
+class Course(db.Model):
+    course_id = db.Column(db.Integer, primary_key=True)
+    course_name = db.Column(db.String, nullable=False)
+    course_code = db.Column(db.String, unique=True, nullable=False)
+    course_description = db.Column(db.String)
 
 class Student(db.Model):
-    __tablename__ = 'student'
-
     student_id = db.Column(db.Integer, primary_key=True)
     roll_number = db.Column(db.String, unique=True, nullable=False)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String)
 
-
-class Course(db.Model):
-    __tablename__ = 'course'
-
-    course_id = db.Column(db.Integer, primary_key=True)
-    course_code = db.Column(db.String, unique=True, nullable=False)
-    course_name = db.Column(db.String, nullable=False)
-    course_description = db.Column(db.String)
-
-
 class Enrollment(db.Model):
-    __tablename__ = 'enrollment'
-
     enrollment_id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student.student_id'), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('course.course_id'), nullable=False)
 
 
-# ------------------ STUDENT API ------------------
+# ---------- STUDENT ----------
 
-class StudentAPI(Resource):
+class StudentList(Resource):
+    def post(self):
+        data = request.get_json()
 
+        if not data.get("roll_number"):
+            return {"error_code": "STUDENT001", "message": "Roll Number required"}, 400
+        if not data.get("first_name"):
+            return {"error_code": "STUDENT002", "message": "First Name is required"}, 400
+
+        if Student.query.filter_by(roll_number=data["roll_number"]).first():
+            return {"message": "Duplicate"}, 409
+
+        s = Student(
+            roll_number=data["roll_number"],
+            first_name=data["first_name"],
+            last_name=data.get("last_name")
+        )
+        db.session.add(s)
+        db.session.commit()
+
+        return {"student_id": s.student_id}, 201
+
+
+class StudentResource(Resource):
     def get(self, student_id):
-        student = Student.query.get(student_id)
-        if not student:
-            return {"error_code": "STUDENT001", "message": "Student not found"}, 404
+        s = Student.query.get(student_id)
+        if not s:
+            return {"message": "Not found"}, 404
 
         return {
-            "student_id": student.student_id,
-            "roll_number": student.roll_number,
-            "first_name": student.first_name,
-            "last_name": student.last_name
-        }
+            "student_id": s.student_id,
+            "roll_number": s.roll_number,
+            "first_name": s.first_name,
+            "last_name": s.last_name
+        }, 200
 
     def put(self, student_id):
-        student = Student.query.get(student_id)
-        if not student:
-            return {"error_code": "STUDENT001", "message": "Student not found"}, 404
+        s = Student.query.get(student_id)
+        if not s:
+            return {"message": "Not found"}, 404
 
         data = request.get_json()
-
-        # revert to safe update (original correct behavior)
-        if 'first_name' in data:
-            student.first_name = data['first_name']
-
-        if 'last_name' in data:
-            student.last_name = data['last_name']
+        s.roll_number = data.get("roll_number", s.roll_number)
+        s.first_name = data.get("first_name", s.first_name)
+        s.last_name = data.get("last_name", s.last_name)
 
         db.session.commit()
-
-        return {"message": "Student updated"}
+        return {}, 200
 
     def delete(self, student_id):
-        student = Student.query.get(student_id)
-        if not student:
-            return {"error_code": "STUDENT001", "message": "Student not found"}, 404
+        s = Student.query.get(student_id)
+        if not s:
+            return {"message": "Not found"}, 404
 
-        Enrollment.query.filter_by(student_id=student_id).delete()
-
-        db.session.delete(student)
+        db.session.delete(s)
         db.session.commit()
+        return {}, 200
 
-        return {"message": "Deleted"}
 
+# ---------- COURSE ----------
 
-class StudentListAPI(Resource):
-
+class CourseList(Resource):
     def post(self):
         data = request.get_json()
 
-        if not data.get('roll_number'):
-            return {"error_code": "STUDENT001", "message": "Roll Number required"}, 400
+        if not data.get("course_name"):
+            return {"error_code": "COURSE001", "message": "Course Name is required"}, 400
+        if not data.get("course_code"):
+            return {"error_code": "COURSE002", "message": "Course Code is required"}, 400
 
-        if not data.get('first_name'):
-            return {"error_code": "STUDENT002", "message": "First Name required"}, 400
+        if Course.query.filter_by(course_code=data["course_code"]).first():
+            return {"message": "Duplicate"}, 409
 
-        existing = Student.query.filter_by(roll_number=data['roll_number']).first()
-        if existing:
-            return {"error_code": "STUDENT003", "message": "Roll number already exists"}, 409
-
-        student = Student(
-            roll_number=data['roll_number'],
-            first_name=data['first_name'],
-            last_name=data.get('last_name')
+        c = Course(
+            course_name=data["course_name"],
+            course_code=data["course_code"],
+            course_description=data.get("course_description")
         )
-
-        db.session.add(student)
+        db.session.add(c)
         db.session.commit()
 
-        return {"message": "Student created"}, 201
+        return {"course_id": c.course_id}, 201
 
 
-# ------------------ COURSE API ------------------
-
-class CourseAPI(Resource):
-
+class CourseResource(Resource):
     def get(self, course_id):
-        course = Course.query.get(course_id)
-
-        if not course:
-            return {"error_code": "COURSE001", "message": "Course not found"}, 404
+        c = Course.query.get(course_id)
+        if not c:
+            return {"message": "Not found"}, 404
 
         return {
-            "course_id": course.course_id,
-            "course_code": course.course_code,
-            "course_name": course.course_name,
-            "course_description": course.course_description
-        }
+            "course_id": c.course_id,
+            "course_name": c.course_name,
+            "course_code": c.course_code,
+            "course_description": c.course_description
+        }, 200
 
     def put(self, course_id):
-        course = Course.query.get(course_id)
-
-        if not course:
-            return {"error_code": "COURSE001", "message": "Course not found"}, 404
+        c = Course.query.get(course_id)
+        if not c:
+            return {"message": "Not found"}, 404
 
         data = request.get_json()
-
-        if not data.get('course_name'):
-            return {"error_code": "COURSE001", "message": "Course Name is required"}, 400
-
-        if not data.get('course_code'):
-            return {"error_code": "COURSE002", "message": "Course Code is required"}, 400
-
-        course.course_name = data['course_name']
-        course.course_code = data['course_code']
-        course.course_description = data.get('course_description')
+        c.course_name = data.get("course_name", c.course_name)
+        c.course_code = data.get("course_code", c.course_code)
+        c.course_description = data.get("course_description", c.course_description)
 
         db.session.commit()
-
-        return {"message": "Course updated"}
+        return {}, 200
 
     def delete(self, course_id):
+        c = Course.query.get(course_id)
+        if not c:
+            return {"message": "Not found"}, 404
+
+        db.session.delete(c)
+        db.session.commit()
+        return {}, 200
+
+
+# ---------- ENROLLMENT ----------
+
+class EnrollmentAPI(Resource):
+    def post(self, student_id):
+        data = request.get_json()
+        course_id = data.get("course_id")
+
+        student = Student.query.get(student_id)
         course = Course.query.get(course_id)
 
         if not course:
-            return {"error_code": "COURSE001", "message": "Course not found"}, 404
+            return {"error_code": "ENROLLMENT001", "message": "Course does not exist"}, 400
+        if not student:
+            return {"error_code": "ENROLLMENT002", "message": "Student does not exist"}, 400
 
-        db.session.delete(course)
+        e = Enrollment(student_id=student_id, course_id=course_id)
+        db.session.add(e)
         db.session.commit()
 
-        return {"message": "Course deleted"}
-
-
-class CourseListAPI(Resource):
-
-    def post(self):
-        data = request.get_json()
-
-        if not data.get('course_name'):
-            return {"error_code": "COURSE001", "message": "Course Name is required"}, 400
-
-        if not data.get('course_code'):
-            return {"error_code": "COURSE002", "message": "Course Code is required"}, 400
-
-        existing = Course.query.filter_by(course_code=data['course_code']).first()
-        if existing:
-            return {"error_code": "COURSE003", "message": "Course already exists"}, 409
-
-        course = Course(
-            course_name=data['course_name'],
-            course_code=data['course_code'],
-            course_description=data.get('course_description')
-        )
-
-        db.session.add(course)
-        db.session.commit()
-
-        return {"message": "Course created"}, 201
-
-
-# ------------------ ENROLLMENT API ------------------
-
-class StudentCourseAPI(Resource):
+        return {
+            "enrollment_id": e.enrollment_id,
+            "student_id": student_id,
+            "course_id": course_id
+        }, 201
 
     def get(self, student_id):
         student = Student.query.get(student_id)
-
         if not student:
-            return {"error_code": "ENROLLMENT002", "message": "Student does not exist."}, 404
+            return {"message": "Not found"}, 404
 
-        enrollments = Enrollment.query.filter_by(student_id=student_id).all()
+        enrolls = Enrollment.query.filter_by(student_id=student_id).all()
+
+        if not enrolls:
+            return {"message": "Not found"}, 404
 
         result = []
-        for e in enrollments:
+        for e in enrolls:
             result.append({
                 "enrollment_id": e.enrollment_id,
                 "student_id": e.student_id,
                 "course_id": e.course_id
             })
 
-        return result
-
-    def post(self, student_id):
-        student = Student.query.get(student_id)
-
-        if not student:
-            return {"error_code": "ENROLLMENT002", "message": "Student does not exist."}, 404
-
-        data = request.get_json()
-        course_id = data.get('course_id')
-
-        course = Course.query.get(course_id)
-        if not course:
-            return {"error_code": "ENROLLMENT001", "message": "Course does not exist"}, 404
-
-        existing = Enrollment.query.filter_by(
-            student_id=student_id,
-            course_id=course_id
-        ).first()
-
-        if existing:
-            return {"message": "Already enrolled"}, 400
-
-        enrollment = Enrollment(
-            student_id=student_id,
-            course_id=course_id
-        )
-
-        db.session.add(enrollment)
-        db.session.commit()
-
-        return {
-            "enrollment_id": enrollment.enrollment_id,
-            "student_id": student_id,
-            "course_id": course_id
-        }, 201
+        return result, 200
 
 
-class StudentCourseDeleteAPI(Resource):
-
+class EnrollmentDelete(Resource):
     def delete(self, student_id, course_id):
-
-        student = Student.query.get(student_id)
-        if not student:
-            return {"error_code": "ENROLLMENT002", "message": "Student does not exist."}, 404
-
-        course = Course.query.get(course_id)
-        if not course:
-            return {"error_code": "ENROLLMENT001", "message": "Course does not exist"}, 404
-
-        enrollment = Enrollment.query.filter_by(
+        e = Enrollment.query.filter_by(
             student_id=student_id,
             course_id=course_id
         ).first()
 
-        if not enrollment:
-            return {"error_code": "ENROLLMENT003", "message": "Enrollment does not exist"}, 404
+        if not e:
+            return {"message": "Not found"}, 404
 
-        db.session.delete(enrollment)
+        db.session.delete(e)
         db.session.commit()
+        return {}, 200
 
-        return {"message": "Enrollment deleted"}
-    
-# ------------------ ROUTES ------------------
 
-api.add_resource(StudentAPI, '/api/student/<int:student_id>')
-api.add_resource(StudentListAPI, '/api/student')
+# ---------- ROUTES ----------
 
-api.add_resource(CourseAPI, '/api/course/<int:course_id>')
-api.add_resource(CourseListAPI, '/api/course')
+api.add_resource(StudentList, "/api/student")
+api.add_resource(StudentResource, "/api/student/<int:student_id>")
 
-api.add_resource(StudentCourseAPI, '/api/student/<int:student_id>/course')
-api.add_resource(StudentCourseDeleteAPI, '/api/student/<int:student_id>/course/<int:course_id>')
+api.add_resource(CourseList, "/api/course")
+api.add_resource(CourseResource, "/api/course/<int:course_id>")
+
+api.add_resource(EnrollmentAPI, "/api/student/<int:student_id>/course")
+api.add_resource(EnrollmentDelete, "/api/student/<int:student_id>/course/<int:course_id>")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
