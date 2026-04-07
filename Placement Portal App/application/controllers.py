@@ -45,7 +45,7 @@ def register_student():
         db.session.add(user)
         db.session.commit()
         return redirect("/")
-    return render_template("register.html")
+    return render_template("register_student.html")
 
 
 # ---------------- REGISTER COMPANY ----------------
@@ -72,7 +72,7 @@ def register_company():
 
         return "Registered. Wait for admin approval."
 
-    return render_template("register.html")
+    return render_template("register_company.html")
 
 
 # ---------------- ADMIN DASHBOARD ----------------
@@ -138,8 +138,22 @@ def create_drive():
 # ---------------- STUDENT DASHBOARD ----------------
 @app.route("/student/dashboard")
 def student_dashboard():
+    user_id = session.get("user_id")
+
     drives = PlacementDrive.query.filter_by(status="approved").all()
-    return render_template("user_dash.html", drives=drives)
+
+    profile = StudentProfile.query.filter_by(user_id=user_id).first()
+    student_cgpa = profile.cgpa if profile else 0
+
+    apps = Application.query.filter_by(student_id=user_id).all()
+    applied_drive_ids = [app.drive_id for app in apps]
+
+    return render_template(
+        "student_dash.html",
+        drives=drives,
+        applied_drive_ids=applied_drive_ids,
+        student_cgpa=student_cgpa
+    )
 
 
 # ---------------- APPLY ----------------
@@ -147,16 +161,22 @@ def student_dashboard():
 def apply(drive_id):
     user_id = session.get("user_id")
 
-    existing = Application.query.filter_by(student_id=user_id, drive_id=drive_id).first()
+    # Prevent duplicate application
+    existing = Application.query.filter_by(
+        student_id=user_id,
+        drive_id=drive_id).first()
+
     if existing:
         return "Already applied"
 
-    app_obj = Application(
+    new_app = Application(
         student_id=user_id,
         drive_id=drive_id,
-        date="today"
+        application_date="today",
+        status="applied"
     )
-    db.session.add(app_obj)
+
+    db.session.add(new_app)
     db.session.commit()
 
     return redirect("/student/dashboard")
@@ -166,5 +186,49 @@ def apply(drive_id):
 @app.route("/my_applications")
 def my_applications():
     user_id = session.get("user_id")
+
     apps = Application.query.filter_by(student_id=user_id).all()
-    return render_template("user_req.html", apps=apps)
+
+    # Map drives for easy access
+    drives = {d.id: d for d in PlacementDrive.query.all()}
+
+    return render_template(
+        "my_applications.html",
+        apps=apps,
+        drives=drives
+    )
+
+# ---------------- PROFILE ROUTE ----------------
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect("/")
+
+    user = User.query.get(user_id)
+
+    profile = StudentProfile.query.filter_by(user_id=user_id).first()
+
+    if not profile:
+        profile = StudentProfile(user_id=user_id)
+        db.session.add(profile)
+        db.session.commit()
+
+    if request.method == "POST":
+        user.email = request.form.get("email")
+        profile.cgpa = request.form.get("cgpa")
+        profile.roll_no = request.form.get("roll_no")
+        profile.contact_no = request.form.get("contact_no")
+        profile.branch = request.form.get("branch")
+
+        db.session.commit()
+        return redirect("/student/dashboard")
+
+    return render_template("profile.html", user=user, profile=profile)
+
+# ---------------- LOGOUT ----------------
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")

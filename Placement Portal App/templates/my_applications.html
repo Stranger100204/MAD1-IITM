@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Applications</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="main">
+        <div id="canvas">
+
+            <!-- NAVBAR -->
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand">My Applications</a>
+
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav me-auto">
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/student/dashboard">Home</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/profile">Profile</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/logout">Logout</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- CONTENT -->
+            <div id="content">
+                <h3 class="headings">My Applications</h3>
+
+                <table class="table text-center border border-3">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Job Title</th>
+                            <th>Eligibility</th>
+                            <th>Deadline</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for app in apps %}
+                        <tr>
+                            <td>{{ app.id }}</td>
+                            <td>{{ drives[app.drive_id].job_title }}</td>
+                            <td>{{ drives[app.drive_id].eligibility }}</td>
+                            <td>{{ drives[app.drive_id].deadline }}</td>
+
+                            <td>
+                                {% if app.status == "applied" %}
+                                    <button class="btn btn-secondary">Applied</button>
+
+                                {% elif app.status == "shortlisted" %}
+                                    <button class="btn btn-warning">Shortlisted</button>
+
+                                {% elif app.status == "selected" %}
+                                    <button class="btn btn-success">Selected</button>
+
+                                {% elif app.status == "rejected" %}
+                                    <button class="btn btn-danger">Rejected</button>
+
+                                {% endif %}
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+
+                        {% if apps|length == 0 %}
+                        <tr>
+                            <td colspan="5">No applications yet</td>
+                        </tr>
+                        {% endif %}
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>    
+    </div>
+</body>
+</html>

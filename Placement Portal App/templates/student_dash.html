@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="main">
+        <div id="canvas">
+
+            <!-- NAVBAR -->
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Welcome Student!</a>
+
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav me-auto">
+
+                            <li class="nav-item">
+                                <a class="nav-link active" href="/student/dashboard">Home</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link active" href="/my_applications">My Applications</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link active" href="/profile">Profile</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link active" href="/logout">Logout</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- CONTENT -->
+            <div id="content">
+                <h3 class="headings">Available Placement Drives</h3>
+
+                <table class="table text-center border border-3">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Job Title</th>
+                            <th>Eligibility</th>
+                            <th>Deadline</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for drive in drives %}
+                        <tr>
+                            <td>{{ drive.id }}</td>
+                            <td>{{ drive.job_title }}</td>
+                            <td>{{ drive.eligibility }}</td>
+                            <td>{{ drive.deadline }}</td>
+                            <td>
+
+                                {% set required_cgpa = drive.eligibility.split('>=')[-1]|float %}
+
+                                {% if drive.id in applied_drive_ids %}
+                                    <button class="btn btn-secondary" disabled>Applied</button>
+
+                                {% elif student_cgpa < required_cgpa %}
+                                    <button class="btn btn-warning" disabled>Not Eligible</button>
+
+                                {% elif drive.status == "closed" %}
+                                    <button class="btn btn-danger" disabled>Closed</button>
+
+                                {% else %}
+                                    <a href="/apply/{{ drive.id }}" class="btn btn-primary">Apply</a>
+                                {% endif %}
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        {% if drives|length == 0 %}
+                        <tr>
+                            <td colspan="5">No placement drives available</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>    
+    </div>
+</body>
+</html>

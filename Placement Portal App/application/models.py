@@ -46,3 +46,15 @@ class Application(db.Model):
     drive_id = db.Column(db.Integer(), db.ForeignKey('placement_drive.id'), nullable=False)
     date = db.Column(db.String(), nullable=False)
     status = db.Column(db.String(), nullable=False, default='applied')
+
+
+class StudentProfile(db.Model):
+    __tablename__ = "student_profile"
+
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
+
+    cgpa = db.Column(db.Float())
+    roll_no = db.Column(db.String())
+    contact_no = db.Column(db.String())
+    branch = db.Column(db.String())
