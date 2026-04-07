@@ -79,6 +79,9 @@
 
                                     <a href="/admin/drive/reject/{{ d.id }}" 
                                        class="btn btn-danger btn-sm">Reject</a>
+                                    
+                                    <a href="/admin/drive/delete/{{ d.id }}" 
+                                        class="btn btn-warning btn-sm">Delete</a>
 
                                 {% elif d.status == "approved" %}
                                     <button class="btn btn-secondary btn-sm" disabled>

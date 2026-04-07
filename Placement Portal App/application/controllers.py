@@ -28,8 +28,13 @@ def login():
         return redirect("/admin/dashboard")
     elif user.role == "company":
         company = Company.query.filter_by(user_id=user.id).first()
-        if company.status != "approved":
-            return "Company not approved by admin"
+        if company.status == "pending":
+            return "Waiting for admin approval"
+        elif company.status == "rejected":
+            return "Your company registration was rejected by admin"
+        elif company.status == "blacklisted":
+            return "Your company is blacklisted. Contact admin for more details."
+        
         return redirect("/company/dashboard")
     else:
         return redirect("/student/dashboard")
@@ -83,7 +88,7 @@ def register_company():
             company_name=request.form.get("company_name"),
             hr_contact=request.form.get("hr_contact"),
             website=request.form.get("website"),
-            status="approved"
+            status="pending"
         )
         db.session.add(company)
         db.session.commit()
@@ -132,6 +137,16 @@ def reject_company(company_id):
 
     return redirect("/admin/companies")
 
+#--------------------- BLACKLIST COMPANY ----------------
+@app.route("/admin/company/blacklist/<int:company_id>")
+def blacklist_company(company_id):
+    company = Company.query.get(company_id)
+
+    company.status = "blacklisted"
+    db.session.commit()
+
+    return redirect("/admin/companies")
+
 # ---------------- ADMIN DRIVES ----------------
 @app.route("/admin/drives")
 def admin_drives():
@@ -159,6 +174,16 @@ def reject_drive(drive_id):
     drive = PlacementDrive.query.get(drive_id)
 
     drive.status = "rejected"
+    db.session.commit()
+
+    return redirect("/admin/drives")
+
+#--------------------- DELETE DRIVE ----------------
+@app.route("/admin/drive/delete/<int:drive_id>")
+def delete_drive_admin(drive_id):
+    drive = PlacementDrive.query.get(drive_id)
+
+    db.session.delete(drive)
     db.session.commit()
 
     return redirect("/admin/drives")
@@ -336,10 +361,24 @@ def profile():
         user.email = request.form.get("email")
         profile.contact_no = request.form.get("contact_no")
 
+        profile.skills = request.form.get("skills")
+        profile.summary = request.form.get("summary")
+
         db.session.commit()
         return redirect("/student/dashboard")
 
     return render_template("profile.html", user=user, profile=profile)
+
+# ---------------- VIEW STUDENT PROFILE (FOR COMPANIES) ----------------
+@app.route("/student/profile/<int:user_id>")
+def view_student_profile(user_id):
+    user = User.query.get(user_id)
+    profile = StudentProfile.query.filter_by(user_id=user_id).first()
+
+    return render_template(
+        "view_profile.html",
+        user=user,
+        profile=profile)
 
 # ---------------- LOGOUT ----------------
 @app.route("/logout")

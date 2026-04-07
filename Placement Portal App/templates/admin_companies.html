@@ -60,7 +60,10 @@
                                     <span class="badge bg-success">Approved</span>
 
                                 {% elif c.status == "rejected" %}
-                                    <span class="badge bg-dark">Rejected</span>
+                                    <span class="badge bg-danger">Rejected</span>
+
+                                {% elif c.status == "blacklisted" %}
+                                    <span class="badge bg-dark">Blacklisted</span>
 
                                 {% else %}
                                     <span class="badge bg-warning">Pending</span>
@@ -76,14 +79,22 @@
                                     <a href="/admin/company/reject/{{ c.id }}" 
                                     class="btn btn-danger btn-sm">Reject</a>
 
+                                    <a href="/admin/company/blacklist/{{ c.id }}"
+                                       class="btn btn-warning btn-sm">Blacklist</a>
+
                                 {% elif c.status == "approved" %}
                                     <button class="btn btn-secondary btn-sm" disabled>
                                         Approved
                                     </button>
 
                                 {% elif c.status == "rejected" %}
-                                    <button class="btn btn-dark btn-sm" disabled>
+                                    <button class="btn btn-secondary btn-sm" disabled>
                                         Rejected
+                                    </button>
+                                
+                                {% elif c.status == "blacklisted" %}
+                                    <button class="btn btn-warning btn-sm" disabled>
+                                        Blacklisted
                                     </button>
                                 {% endif %}
                             </td>

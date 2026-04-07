@@ -58,3 +58,5 @@ class StudentProfile(db.Model):
     roll_no = db.Column(db.String())
     contact_no = db.Column(db.String())
     branch = db.Column(db.String())
+    summary = db.Column(db.String())
+    skills = db.Column(db.String())

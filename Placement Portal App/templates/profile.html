@@ -75,6 +75,16 @@
                 <input type="text" name="contact_no" class="form-control" value="{{ profile.contact_no }}">
             </div>
 
+            <div class="mb-3">
+                <label>Technical Skills</label>
+                <textarea name="skills" class="form-control">{{ profile.skills }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label>Summary</label>
+                <textarea name="summary" class="form-control">{{ profile.summary }}</textarea>
+            </div>
+
             <div class="text-center">
                 <input type="submit" class="btn btn-primary" value="Update">
             </div>

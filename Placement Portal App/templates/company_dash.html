@@ -39,7 +39,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Job Title</th>
-                            <th>Eligibility</th>
+                            <th>Eligibility (CGPA)</th>
                             <th>Deadline</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -53,7 +53,17 @@
                             <td>{{ drive.job_title }}</td>
                             <td>{{ drive.eligibility }}</td>
                             <td>{{ drive.deadline }}</td>
-                            <td>{{ drive.status }}</td>
+                            <td>
+                                {% if drive.status == "approved" %}
+                                    <span class="badge bg-success">Approved</span>
+
+                                {% elif drive.status == "rejected" %}
+                                    <span class="badge bg-danger">Rejected</span>
+
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
 
                             <td>
                                 <a href="/drive/{{ drive.id }}/applicants" class="btn btn-info mx-1">
