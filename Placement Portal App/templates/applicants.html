@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Applicants</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="main">
+        <div id="canvas">
+
+            <!-- NAVBAR -->
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand">Applicants</a>
+
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav me-auto">
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/company/dashboard">Home</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/logout">Logout</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- CONTENT -->
+            <div id="content">
+                <h3 class="headings">Applicants List</h3>
+
+                <table class="table text-center border border-3">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Roll No</th>
+                            <th>Branch</th>
+                            <th>CGPA</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for app in apps %}
+                        <tr>
+                            <td>{{ users[app.student_id].username }}</td>
+                            <td>{{ profiles[app.student_id].roll_no }}</td>
+                            <td>{{ profiles[app.student_id].branch }}</td>
+                            <td>{{ profiles[app.student_id].cgpa }}</td>
+
+                            <!-- STATUS -->
+                            <td>
+                                {% if app.status == "applied" %}
+                                    <span class="badge bg-secondary">Applied</span>
+                                {% elif app.status == "shortlisted" %}
+                                    <span class="badge bg-warning">Shortlisted</span>
+                                {% elif app.status == "selected" %}
+                                    <span class="badge bg-success">Selected</span>
+                                {% elif app.status == "rejected" %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- ACTION BUTTONS -->
+                            <td>
+                                <a href="/update_status/{{ app.id }}/shortlisted" 
+                                   class="btn btn-warning btn-sm">Shortlist</a>
+
+                                <a href="/update_status/{{ app.id }}/selected" 
+                                   class="btn btn-success btn-sm">Select</a>
+
+                                <a href="/update_status/{{ app.id }}/rejected" 
+                                   class="btn btn-danger btn-sm">Reject</a>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+
+                        {% if apps|length == 0 %}
+                        <tr>
+                            <td colspan="6">No applicants yet</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>    
+    </div>
+</body>
+</html>

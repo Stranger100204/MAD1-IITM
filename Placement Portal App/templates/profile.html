@@ -4,6 +4,11 @@
     <title>Profile</title>
     <link rel="stylesheet" href="/static/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #content{
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
 
@@ -43,24 +48,24 @@
 
             <!-- Roll Number -->
             <div class="mb-3">
-                <label>Roll Number</label>
-                <input type="text" name="roll_no" class="form-control" value="{{ profile.roll_no }}">
+                <label>Student Roll No</label>
+                <input type="text" name="roll_no" class="form-control" value="{{ profile.roll_no }}" disabled>
             </div>
 
             <div class="mb-3">
-                <label>Branch</label>
-                <input type="text" name="branch" class="form-control" value="{{ profile.branch }}">
+                <label>Department/Branch</label>
+                <input type="text" name="branch" class="form-control" value="{{ profile.branch }}" disabled>
             </div>
 
             <!-- CGPA -->
             <div class="mb-3">
-                <label>CGPA</label>
-                <input type="number" step="0.01" name="cgpa" class="form-control" value="{{ profile.cgpa }}">
+                <label>Current CGPA</label>
+                <input type="number" step="0.01" name="cgpa" class="form-control" value="{{ profile.cgpa }}" disabled>
             </div>
 
             <!-- Email -->
             <div class="mb-3">
-                <label>Email</label>
+                <label>Email ID</label>
                 <input type="email" name="email" class="form-control" value="{{ user.email }}">
             </div>
 

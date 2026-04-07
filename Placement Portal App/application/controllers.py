@@ -27,6 +27,9 @@ def login():
     if user.role == "admin":
         return redirect("/admin/dashboard")
     elif user.role == "company":
+        company = Company.query.filter_by(user_id=user.id).first()
+        if company.status != "approved":
+            return "Company not approved by admin"
         return redirect("/company/dashboard")
     else:
         return redirect("/student/dashboard")
@@ -36,15 +39,29 @@ def login():
 @app.route("/register/student", methods=["GET", "POST"])
 def register_student():
     if request.method == "POST":
+
+        # Create user
         user = User(
             username=request.form.get("username"),
             email=request.form.get("email"),
             password=request.form.get("password"),
-            role="student"
-        )
+            role="student")
+        
         db.session.add(user)
         db.session.commit()
+
+        # Create student profile
+        profile = StudentProfile(
+            user_id=user.id,
+            roll_no=request.form.get("roll_no"),
+            branch=request.form.get("branch"),
+            cgpa=request.form.get("cgpa"))
+        
+        db.session.add(profile)
+        db.session.commit()
+
         return redirect("/")
+
     return render_template("register_student.html")
 
 
@@ -108,7 +125,7 @@ def company_dashboard():
     user_id = session.get("user_id")
     company = Company.query.filter_by(user_id=user_id).first()
     drives = PlacementDrive.query.filter_by(company_id=company.id).all()
-    return render_template("manager_dash.html", drives=drives)
+    return render_template("company_dash.html", drives=drives)
 
 
 # ---------------- CREATE DRIVE ----------------
@@ -134,6 +151,31 @@ def create_drive():
 
     return render_template("create_table.html")
 
+#UPDATE DRIVE
+@app.route("/drive/update/<int:drive_id>", methods=["GET", "POST"])
+def update_drive(drive_id):
+    drive = PlacementDrive.query.get(drive_id)
+
+    if request.method == "POST":
+        drive.job_title = request.form.get("job_title")
+        drive.description = request.form.get("description")
+        drive.eligibility = request.form.get("eligibility")
+        drive.deadline = request.form.get("deadline")
+
+        db.session.commit()
+        return redirect("/company/dashboard")
+
+    return render_template("update_drive.html", drive=drive)
+
+#DELETE DRIVE
+@app.route("/drive/delete/<int:drive_id>")
+def delete_drive(drive_id):
+    drive = PlacementDrive.query.get(drive_id)
+
+    db.session.delete(drive)
+    db.session.commit()
+
+    return redirect("/company/dashboard")
 
 # ---------------- STUDENT DASHBOARD ----------------
 @app.route("/student/dashboard")
@@ -217,10 +259,7 @@ def profile():
 
     if request.method == "POST":
         user.email = request.form.get("email")
-        profile.cgpa = request.form.get("cgpa")
-        profile.roll_no = request.form.get("roll_no")
         profile.contact_no = request.form.get("contact_no")
-        profile.branch = request.form.get("branch")
 
         db.session.commit()
         return redirect("/student/dashboard")
