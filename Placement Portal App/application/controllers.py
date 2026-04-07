@@ -82,12 +82,13 @@ def register_company():
             user_id=user.id,
             company_name=request.form.get("company_name"),
             hr_contact=request.form.get("hr_contact"),
-            website=request.form.get("website")
+            website=request.form.get("website"),
+            status="approved"
         )
         db.session.add(company)
         db.session.commit()
 
-        return "Registered. Wait for admin approval."
+        return redirect("/")   # ✅ FIX
 
     return render_template("register_company.html")
 
@@ -131,25 +132,26 @@ def company_dashboard():
 # ---------------- CREATE DRIVE ----------------
 @app.route("/drive/create", methods=["GET", "POST"])
 def create_drive():
+    user_id = session.get("user_id")
+
+    company = Company.query.filter_by(user_id=user_id).first()
+
     if request.method == "POST":
-        user_id = session.get("user_id")
-        company = Company.query.filter_by(user_id=user_id).first()
-
-        if company.status != "approved":
-            return "Company not approved by admin"
-
         drive = PlacementDrive(
             company_id=company.id,
             job_title=request.form.get("job_title"),
             description=request.form.get("description"),
             eligibility=request.form.get("eligibility"),
-            deadline=request.form.get("deadline")
+            deadline=request.form.get("deadline"),
+            status="pending"   # 🔥 important (admin will approve later)
         )
+
         db.session.add(drive)
         db.session.commit()
+
         return redirect("/company/dashboard")
 
-    return render_template("create_table.html")
+    return render_template("create_drive.html")
 
 #UPDATE DRIVE
 @app.route("/drive/update/<int:drive_id>", methods=["GET", "POST"])
@@ -239,6 +241,31 @@ def my_applications():
         apps=apps,
         drives=drives
     )
+
+#VIEW APPLICANTS FOR A DRIVE
+@app.route("/drive/<int:drive_id>/applicants")
+def view_applicants(drive_id):
+    apps = Application.query.filter_by(drive_id=drive_id).all()
+
+    users = {u.id: u for u in User.query.all()}
+    profiles = {p.user_id: p for p in StudentProfile.query.all()}
+
+    return render_template(
+        "applicants.html",
+        apps=apps,
+        users=users,
+        profiles=profiles
+    )
+
+#STATUS UPDATE
+@app.route("/update_status/<int:app_id>/<status>")
+def update_status(app_id, status):
+    app_obj = Application.query.get(app_id)
+
+    app_obj.status = status
+    db.session.commit()
+
+    return redirect(request.referrer)
 
 # ---------------- PROFILE ROUTE ----------------
 @app.route("/profile", methods=["GET", "POST"])
