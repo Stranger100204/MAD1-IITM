@@ -99,26 +99,69 @@ def admin_dashboard():
     companies = Company.query.all()
     drives = PlacementDrive.query.all()
     students = User.query.filter_by(role="student").all()
-    return render_template("manager_dash.html", companies=companies, drives=drives, students=students)
+    return render_template("admin_dash.html", companies=companies, drives=drives, students=students)
 
+# ---------------- ADMIN COMPANIES ----------------
+@app.route("/admin/companies")
+def admin_companies():
+    companies = Company.query.all()
+    users = {u.id: u for u in User.query.all()}
+
+    return render_template(
+        "admin_companies.html",
+        companies=companies,
+        users=users)
 
 # ---------------- APPROVE COMPANY ----------------
-@app.route("/approve/company/<int:id>")
-def approve_company(id):
-    company = Company.query.get(id)
+@app.route("/admin/company/approve/<int:company_id>")
+def approve_company(company_id):
+    company = Company.query.get(company_id)
+
     company.status = "approved"
     db.session.commit()
-    return redirect("/admin/dashboard")
 
+    return redirect("/admin/companies")
+
+# ---------------- REJECT COMPANY ----------------
+@app.route("/admin/company/reject/<int:company_id>")
+def reject_company(company_id):
+    company = Company.query.get(company_id)
+
+    company.status = "rejected"
+    db.session.commit()
+
+    return redirect("/admin/companies")
+
+# ---------------- ADMIN DRIVES ----------------
+@app.route("/admin/drives")
+def admin_drives():
+    drives = PlacementDrive.query.all()
+    companies = {c.id: c for c in Company.query.all()}
+
+    return render_template(
+        "admin_drives.html",
+        drives=drives,
+        companies=companies)
 
 # ---------------- APPROVE DRIVE ----------------
-@app.route("/approve/drive/<int:id>")
-def approve_drive(id):
-    drive = PlacementDrive.query.get(id)
+@app.route("/admin/drive/approve/<int:drive_id>")
+def approve_drive(drive_id):
+    drive = PlacementDrive.query.get(drive_id)
+
     drive.status = "approved"
     db.session.commit()
-    return redirect("/admin/dashboard")
 
+    return redirect("/admin/drives")
+
+# ---------------- REJECT DRIVE ----------------
+@app.route("/admin/drive/reject/<int:drive_id>")
+def reject_drive(drive_id):
+    drive = PlacementDrive.query.get(drive_id)
+
+    drive.status = "rejected"
+    db.session.commit()
+
+    return redirect("/admin/drives")
 
 # ---------------- COMPANY DASHBOARD ----------------
 @app.route("/company/dashboard")
@@ -159,10 +202,10 @@ def update_drive(drive_id):
     drive = PlacementDrive.query.get(drive_id)
 
     if request.method == "POST":
-        drive.job_title = request.form.get("job_title")
-        drive.description = request.form.get("description")
         drive.eligibility = request.form.get("eligibility")
         drive.deadline = request.form.get("deadline")
+
+        drive.status = "pending"
 
         db.session.commit()
         return redirect("/company/dashboard")
@@ -192,13 +235,15 @@ def student_dashboard():
     apps = Application.query.filter_by(student_id=user_id).all()
     applied_drive_ids = [app.drive_id for app in apps]
 
+    companies = {c.id: c for c in Company.query.all()}
+
     return render_template(
         "student_dash.html",
         drives=drives,
         applied_drive_ids=applied_drive_ids,
-        student_cgpa=student_cgpa
+        student_cgpa=student_cgpa,
+        companies=companies
     )
-
 
 # ---------------- APPLY ----------------
 @app.route("/apply/<int:drive_id>")
@@ -216,7 +261,7 @@ def apply(drive_id):
     new_app = Application(
         student_id=user_id,
         drive_id=drive_id,
-        application_date="today",
+        date="today",
         status="applied"
     )
 
@@ -236,10 +281,13 @@ def my_applications():
     # Map drives for easy access
     drives = {d.id: d for d in PlacementDrive.query.all()}
 
+    companies = {c.id: c for c in Company.query.all()}
+
     return render_template(
         "my_applications.html",
         apps=apps,
-        drives=drives
+        drives=drives,
+        companies=companies
     )
 
 #VIEW APPLICANTS FOR A DRIVE

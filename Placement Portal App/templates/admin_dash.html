@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #content{
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <div id="canvas">
+
+            <!-- NAVBAR -->
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand">Welcome Admin!</a>
+
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav me-auto">
+
+                            <li class="nav-item">
+                                <a class="nav-link active" href="/admin/dashboard">Home</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- CONTENT -->
+            <div id="content">
+                <h3 class="headings">Admin Controls</h3>
+
+                <table class="table text-center border border-3">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Module</th>
+                            <th>Description</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>1</td>
+                            <td>Companies</td>
+                            <td>Approve or manage registered companies</td>
+                            <td>
+                                <a href="/admin/companies" class="btn btn-primary">
+                                    Manage Companies
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>2</td>
+                            <td>Placement Drives</td>
+                            <td>Approve or manage placement drives</td>
+                            <td>
+                                <a href="/admin/drives" class="btn btn-success">
+                                    Manage Drives
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>3</td>
+                            <td>Logout</td>
+                            <td>Exit admin session</td>
+                            <td>
+                                <a href="/logout" class="btn btn-danger">
+                                    Logout
+                                </a>
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>    
+    </div>
+</body>
+</html>

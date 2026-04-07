@@ -4,11 +4,6 @@
     <title>Student Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        #content{
-            padding: 10px;
-        }
-    </style>
 </head>
 <body>
     <div id="main">
@@ -52,7 +47,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Job Title</th>
-                            <th>Eligibility</th>
+                            <th>Company Name</th>
+                            <th>Eligibility (Min CGPA)</th>
                             <th>Deadline</th>
                             <th>Action</th>
                         </tr>
@@ -63,6 +59,7 @@
                         <tr>
                             <td>{{ drive.id }}</td>
                             <td>{{ drive.job_title }}</td>
+                            <td>{{ companies[drive.company_id].company_name }}</td>
                             <td>{{ drive.eligibility }}</td>
                             <td>{{ drive.deadline }}</td>
                             <td>

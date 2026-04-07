@@ -43,6 +43,7 @@
                         <tr>
                             <th>ID</th>
                             <th>Job Title</th>
+                            <th>Company Name</th>
                             <th>Eligibility</th>
                             <th>Deadline</th>
                             <th>Status</th>
@@ -54,6 +55,7 @@
                         <tr>
                             <td>{{ app.id }}</td>
                             <td>{{ drives[app.drive_id].job_title }}</td>
+                            <td>{{ companies[drives[app.drive_id].company_id].company_name }}</td>
                             <td>{{ drives[app.drive_id].eligibility }}</td>
                             <td>{{ drives[app.drive_id].deadline }}</td>
 

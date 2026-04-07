@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Manage Drives</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="main">
+        <div id="canvas">
+
+            <!-- NAVBAR -->
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand">Manage Placement Drives</a>
+
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav me-auto">
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/admin/dashboard">Home</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="/logout">Logout</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- CONTENT -->
+            <div id="content">
+                <h3 class="headings">Placement Drive Approval List</h3>
+
+                <table class="table text-center border border-3">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Job Title</th>
+                            <th>Company</th>
+                            <th>Job Description</th>
+                            <th>Eligibility</th>
+                            <th>Deadline</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for d in drives %}
+                        <tr>
+                            <td>{{ d.id }}</td>
+                            <td>{{ d.job_title }}</td>
+                            <td>{{ companies[d.company_id].company_name }}</td>
+                            <td>{{ d.description }}</td>
+                            <td>{{ d.eligibility }}</td>
+                            <td>{{ d.deadline }}</td>
+
+                            <!-- STATUS -->
+                            <td>
+                                {% if d.status == "approved" %}
+                                    <span class="badge bg-success">Approved</span>
+
+                                {% elif d.status == "rejected" %}
+                                    <span class="badge bg-dark">Rejected</span>
+
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- ACTION -->
+                            <td>
+                                {% if d.status == "pending" %}
+                                    <a href="/admin/drive/approve/{{ d.id }}" 
+                                       class="btn btn-success btn-sm">Approve</a>
+
+                                    <a href="/admin/drive/reject/{{ d.id }}" 
+                                       class="btn btn-danger btn-sm">Reject</a>
+
+                                {% elif d.status == "approved" %}
+                                    <button class="btn btn-secondary btn-sm" disabled>
+                                        Approved
+                                    </button>
+
+                                {% elif d.status == "rejected" %}
+                                    <button class="btn btn-dark btn-sm" disabled>
+                                        Rejected
+                                    </button>
+                                {% endif %}
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+
+                        {% if drives|length == 0 %}
+                        <tr>
+                            <td colspan="7">No placement drives available</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>    
+    </div>
+</body>
+</html>
