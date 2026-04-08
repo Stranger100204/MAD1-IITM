@@ -21,6 +21,10 @@
                                 <a class="nav-link active" href="/company/dashboard">Home</a>
                             </li>
 
+                           <li class="nav-item">
+                                <a class="nav-link active" href="/company/profile">Your Profile</a>
+                            </li>
+
                             <li class="nav-item">
                                 <a class="nav-link active" href="/logout">Logout</a>
                             </li>
@@ -54,7 +58,10 @@
                             <td>{{ drive.eligibility }}</td>
                             <td>{{ drive.deadline }}</td>
                             <td>
-                                {% if drive.status == "approved" %}
+                                {% if drive.deadline < today %}
+                                    <span class="badge bg-secondary">Closed</span>
+
+                                {% elif drive.status == "approved" %}
                                     <span class="badge bg-success">Approved</span>
 
                                 {% elif drive.status == "rejected" %}
@@ -103,3 +110,4 @@
     </div>
 </body>
 </html>
+

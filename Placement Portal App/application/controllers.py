@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from .models import *
 from .database import db
+from datetime import datetime
+import random
 
 app = Blueprint("app", __name__)
 
@@ -58,6 +60,7 @@ def register_student():
         # Create student profile
         profile = StudentProfile(
             user_id=user.id,
+            name=request.form.get("name"),
             roll_no=request.form.get("roll_no"),
             branch=request.form.get("branch"),
             cgpa=request.form.get("cgpa"))
@@ -74,6 +77,7 @@ def register_student():
 @app.route("/register/company", methods=["GET", "POST"])
 def register_company():
     if request.method == "POST":
+
         user = User(
             username=request.form.get("username"),
             email=request.form.get("email"),
@@ -83,17 +87,25 @@ def register_company():
         db.session.add(user)
         db.session.commit()
 
+        # 🔥 Generate Registration Number
+        year = datetime.now().year
+        random_num = random.randint(1000, 9999)
+        reg_no = f"COMP{year}{random_num}"
+
         company = Company(
             user_id=user.id,
             company_name=request.form.get("company_name"),
+            registration_no=reg_no,
+            location=request.form.get("location"),
             hr_contact=request.form.get("hr_contact"),
             website=request.form.get("website"),
             status="pending"
         )
+
         db.session.add(company)
         db.session.commit()
 
-        return redirect("/")   # ✅ FIX
+        return redirect("/")
 
     return render_template("register_company.html")
 
@@ -116,6 +128,20 @@ def admin_companies():
         "admin_companies.html",
         companies=companies,
         users=users)
+
+# ---------------- VIEW COMPANY PROFILE (ADMIN) ----------------
+@app.route("/admin/company/<int:company_id>")
+def admin_view_company(company_id):
+
+    company = Company.query.get_or_404(company_id)
+    user = User.query.get(company.user_id)
+
+    return render_template(
+        "view_company.html",
+        company=company,
+        user=user,
+        role="admin"
+    )
 
 # ---------------- APPROVE COMPANY ----------------
 @app.route("/admin/company/approve/<int:company_id>")
@@ -190,11 +216,13 @@ def delete_drive_admin(drive_id):
 
 # ---------------- COMPANY DASHBOARD ----------------
 @app.route("/company/dashboard")
+
 def company_dashboard():
     user_id = session.get("user_id")
     company = Company.query.filter_by(user_id=user_id).first()
     drives = PlacementDrive.query.filter_by(company_id=company.id).all()
-    return render_template("company_dash.html", drives=drives)
+    today = datetime.now().date()
+    return render_template("company_dash.html", drives=drives, today=today)
 
 
 # ---------------- CREATE DRIVE ----------------
@@ -205,12 +233,15 @@ def create_drive():
     company = Company.query.filter_by(user_id=user_id).first()
 
     if request.method == "POST":
+        deadline_str = request.form.get("deadline")
+        deadline_date = datetime.strptime(deadline_str, "%Y-%m-%d").date()
+
         drive = PlacementDrive(
             company_id=company.id,
             job_title=request.form.get("job_title"),
             description=request.form.get("description"),
-            eligibility=request.form.get("eligibility"),
-            deadline=request.form.get("deadline"),
+            eligibility=float(request.form.get("eligibility")),
+            deadline=deadline_date,
             status="pending"   # 🔥 important (admin will approve later)
         )
 
@@ -228,7 +259,8 @@ def update_drive(drive_id):
 
     if request.method == "POST":
         drive.eligibility = request.form.get("eligibility")
-        drive.deadline = request.form.get("deadline")
+        deadline_str = request.form.get("deadline")
+        drive.deadline = datetime.strptime(deadline_str, "%Y-%m-%d").date()
 
         drive.status = "pending"
 
@@ -262,12 +294,15 @@ def student_dashboard():
 
     companies = {c.id: c for c in Company.query.all()}
 
+    today = datetime.now().date()
+
     return render_template(
         "student_dash.html",
         drives=drives,
         applied_drive_ids=applied_drive_ids,
         student_cgpa=student_cgpa,
-        companies=companies
+        companies=companies,
+        today=today
     )
 
 # ---------------- APPLY ----------------
@@ -341,6 +376,8 @@ def update_status(app_id, status):
     return redirect(request.referrer)
 
 # ---------------- PROFILE ROUTE ----------------
+from flask import url_for
+
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
     user_id = session.get("user_id")
@@ -349,7 +386,6 @@ def profile():
         return redirect("/")
 
     user = User.query.get(user_id)
-
     profile = StudentProfile.query.filter_by(user_id=user_id).first()
 
     if not profile:
@@ -359,15 +395,43 @@ def profile():
 
     if request.method == "POST":
         user.email = request.form.get("email")
-        profile.contact_no = request.form.get("contact_no")
 
+        name = request.form.get("name")
+        if name:
+            profile.name = name
+
+        profile.contact_no = request.form.get("contact_no")
         profile.skills = request.form.get("skills")
         profile.summary = request.form.get("summary")
 
         db.session.commit()
-        return redirect("/student/dashboard")
+
+        return redirect(url_for("app.profile"))   # ✅ FIXED
 
     return render_template("profile.html", user=user, profile=profile)
+
+# ---------------- COMPANY PROFILE ROUTE ----------------
+@app.route("/company/profile", methods=["GET", "POST"])
+def company_profile():
+    user_id = session.get("user_id")
+
+    company = Company.query.filter_by(user_id=user_id).first()
+    user = User.query.get(user_id)
+
+    if request.method == "POST":
+        company.overview = request.form.get("overview")
+        company.location = request.form.get("location")
+        company.services = request.form.get("services")
+
+        company.email = request.form.get("email")
+        company.hr_contact = request.form.get("contact_no")
+        company.website = request.form.get("website")
+
+        db.session.commit()
+
+        return redirect("/company/dashboard")
+
+    return render_template("company_profile.html", company=company, user=user)
 
 # ---------------- VIEW STUDENT PROFILE (FOR COMPANIES) ----------------
 @app.route("/student/profile/<int:user_id>")
@@ -379,6 +443,19 @@ def view_student_profile(user_id):
         "view_profile.html",
         user=user,
         profile=profile)
+
+# ---------------- VIEW COMPANY PROFILE ----------------
+@app.route("/company/profile/<int:company_id>")
+def view_company_profile(company_id):
+    company = Company.query.get_or_404(company_id)
+    user = User.query.get(company.user_id)
+
+    return render_template(
+        "view_company.html",
+        company=company,
+        user=user,
+        role=session.get("role")
+    )
 
 # ---------------- LOGOUT ----------------
 @app.route("/logout")

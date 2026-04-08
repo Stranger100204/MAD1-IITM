@@ -44,6 +44,7 @@
                             <th>ID</th>
                             <th>Job Title</th>
                             <th>Company Name</th>
+                            <th>Company Profile</th>
                             <th>Eligibility</th>
                             <th>Deadline</th>
                             <th>Status</th>
@@ -56,6 +57,11 @@
                             <td>{{ app.id }}</td>
                             <td>{{ drives[app.drive_id].job_title }}</td>
                             <td>{{ companies[drives[app.drive_id].company_id].company_name }}</td>
+                            <td>
+                                <a href="/company/profile/{{ companies[drives[app.drive_id].company_id].id }}" class="btn btn-info">
+                                    View Profile
+                                </a>
+                            </td>
                             <td>{{ drives[app.drive_id].eligibility }}</td>
                             <td>{{ drives[app.drive_id].deadline }}</td>
 

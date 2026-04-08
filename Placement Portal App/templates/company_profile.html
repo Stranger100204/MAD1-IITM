@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand">Company Profile</a>
+
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/company/dashboard">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+
+                <h3 class="text-center mb-4">Company Profile</h3>
+
+                <div class="card shadow-sm p-4">
+
+                    <form method="post">
+
+                        <p>
+                            Status:
+                            {% if company.status == "approved" %}
+                                <span class="badge bg-success">Approved</span>
+                            {% elif company.status == "rejected" %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% elif company.status == "blacklisted" %}
+                                <span class="badge bg-dark">Blacklisted</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </p>
+
+                        <!-- Company Name -->
+                        <div class="mb-3">
+                            <label>Company Name</label>
+                            <input type="text" class="form-control" value="{{ company.company_name }}" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Company Reg. No.</label>
+                            <input type="text" class="form-control" value="{{ company.registration_no }}" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Based In</label>
+                            <input type="text" name="location" class="form-control" value="{{ company.location }}" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Company Overview</label>
+                            <textarea name="overview" class="form-control" rows="3">{{ company.overview }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Services</label>
+                            <input type="text" name="services" class="form-control" value="{{ company.services }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Official Email ID</label>
+                            <input type="email" name="email" class="form-control" value="{{ user.email }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Contact Number</label>
+                            <input type="text" name="contact_no" class="form-control" value="{{ company.hr_contact }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Company Website</label>
+                            <input type="text" name="website" class="form-control" value="{{ company.website }}">
+                        </div>
+
+                        <div class="text-center">
+                            <input type="submit" class="btn btn-primary px-4" value="Update">
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</div>
+
+</body>
+</html>

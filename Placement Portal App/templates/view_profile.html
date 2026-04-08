@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<body class="bg-light">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand">Student Profile</a>
+
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                <a class="nav-link active"
+                    href="{% if role == 'admin' %}
+                                /admin/dashboard
+                            {% elif role == 'company' %}
+                                /company/dashboard
+                            {% else %}
+                                /student/dashboard
+                            {% endif %}">
+                    Home
+                    </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- CONTENT -->
+<div class="container py-4">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <h3 class="text-center mb-4">Candidate Details</h3>
+
+            <div class="card shadow-sm p-4">
+
+                <table class="table table-bordered align-middle">
+
+                    <!-- BASIC INFO -->
+                    <tr class="table-light">
+                        <th colspan="2">Basic Information</th>
+                    </tr>
+                    <tr>
+                        <td>Student Name</td>
+                        <td>{{ profile.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>{{ user.email }}</td>
+                    </tr>
+
+                    <!-- ACADEMIC -->
+                    <tr class="table-light">
+                        <th colspan="2">Academic Details</th>
+                    </tr>
+                    <tr>
+                        <td>Roll No</td>
+                        <td>{{ profile.roll_no }}</td>
+                    </tr>
+                    <tr>
+                        <td>Branch</td>
+                        <td>{{ profile.branch }}</td>
+                    </tr>
+                    <tr>
+                        <td>CGPA</td>
+                        <td>{{ profile.cgpa }}</td>
+                    </tr>
+
+                    <!-- CONTACT -->
+                    <tr class="table-light">
+                        <th colspan="2">Contact</th>
+                    </tr>
+                    <tr>
+                        <td>Phone</td>
+                        <td>{{ profile.contact_no or "Not provided" }}</td>
+                    </tr>
+
+                    <!-- SKILLS -->
+                    <tr class="table-light">
+                        <th colspan="2">Technical Skills</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2">{{ profile.skills or "Not provided" }}</td>
+                    </tr>
+
+                    <!-- SUMMARY -->
+                    <tr class="table-light">
+                        <th colspan="2">Executive Summary</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2">{{ profile.summary or "Not provided" }}</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

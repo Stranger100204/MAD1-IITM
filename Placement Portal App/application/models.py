@@ -17,8 +17,12 @@ class Company(db.Model):
     __tablename__ = "company"
 
     id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))  # ✅ FIXED TYPE
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
     company_name = db.Column(db.String(), nullable=False)
+    registration_no = db.Column(db.String(), unique=True)
+    overview = db.Column(db.String())       
+    location = db.Column(db.String())         
+    services = db.Column(db.String())      
     hr_contact = db.Column(db.String())
     website = db.Column(db.String())
     status = db.Column(db.String(), default='pending')
@@ -33,7 +37,7 @@ class PlacementDrive(db.Model):
     job_title = db.Column(db.String(), nullable=False)
     description = db.Column(db.String())
     eligibility = db.Column(db.String())
-    deadline = db.Column(db.String())
+    deadline = db.Column(db.Date)
     status = db.Column(db.String(), default='pending')
 
 
@@ -53,7 +57,7 @@ class StudentProfile(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
-
+    name = db.Column(db.String())
     cgpa = db.Column(db.Float())
     roll_no = db.Column(db.String())
     contact_no = db.Column(db.String())

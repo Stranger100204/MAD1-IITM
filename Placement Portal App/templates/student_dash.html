@@ -48,6 +48,7 @@
                             <th>ID</th>
                             <th>Job Title</th>
                             <th>Company Name</th>
+                            <th>Company Profile</th>
                             <th>Eligibility (Min CGPA)</th>
                             <th>Deadline</th>
                             <th>Action</th>
@@ -60,6 +61,11 @@
                             <td>{{ drive.id }}</td>
                             <td>{{ drive.job_title }}</td>
                             <td>{{ companies[drive.company_id].company_name }}</td>
+                            <td>
+                                <a href="/company/profile/{{ companies[drive.company_id].id }}" class="btn btn-info">
+                                    View Profile
+                                </a>
+                            </td>
                             <td>{{ drive.eligibility }}</td>
                             <td>{{ drive.deadline }}</td>
                             <td>
@@ -72,7 +78,7 @@
                                 {% elif student_cgpa < required_cgpa %}
                                     <button class="btn btn-warning" disabled>Not Eligible</button>
 
-                                {% elif drive.status == "closed" %}
+                                {% elif drive.deadline < today %}
                                     <button class="btn btn-danger" disabled>Closed</button>
 
                                 {% else %}

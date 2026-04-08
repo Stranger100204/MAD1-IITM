@@ -39,7 +39,8 @@
                         <tr>
                             <th>ID</th>
                             <th>Company Name</th>
-                            <th>Email</th>
+                            <th>Company Profile</th>
+                            <th>Email ID</th>
                             <th>HR Contact</th>
                             <th>Status</th>
                             <th>Action</th>
@@ -51,6 +52,11 @@
                         <tr>
                             <td>{{ c.id }}</td>
                             <td>{{ c.company_name }}</td>
+                            <td>
+                                <a href="/admin/company/{{ c.id }}" class="btn btn-info">
+                                    View Profile
+                                </a>
+                            </td>
                             <td>{{ users[c.user_id].email }}</td>
                             <td>{{ c.hr_contact }}</td>
 

@@ -37,10 +37,12 @@
                 <table class="table text-center border border-3">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Name</th>
                             <th>Roll No</th>
                             <th>Branch</th>
                             <th>CGPA</th>
+                            <th>Student Profile</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -49,10 +51,15 @@
                     <tbody>
                         {% for app in apps %}
                         <tr>
+                            <td>{{ app.id }}</td>
                             <td>{{ users[app.student_id].username }}</td>
                             <td>{{ profiles[app.student_id].roll_no }}</td>
                             <td>{{ profiles[app.student_id].branch }}</td>
                             <td>{{ profiles[app.student_id].cgpa }}</td>
+                            
+                            <td>
+                                <a href="/student/profile/{{ users[app.student_id].id }}" 
+                                    class="btn btn-info btn-sm">View Profile</a>
 
                             <!-- STATUS -->
                             <td>
@@ -69,8 +76,6 @@
 
                             <!-- ACTION BUTTONS -->
                             <td>
-                                <a href="/student/profile/{{ users[app.student_id].id }}" 
-                                    class="btn btn-info btn-sm">View Profile</a>
 
                                 <a href="/update_status/{{ app.id }}/shortlisted" 
                                    class="btn btn-warning btn-sm">Shortlist</a>
@@ -87,7 +92,7 @@
 
                         {% if apps|length == 0 %}
                         <tr>
-                            <td colspan="6">No applicants yet</td>
+                            <td colspan="6" class="text-center">No applicants yet</td>
                         </tr>
                         {% endif %}
                     </tbody>
