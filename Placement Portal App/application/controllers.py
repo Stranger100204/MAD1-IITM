@@ -36,8 +36,11 @@ def login():
             return "Your company registration was rejected by admin"
         elif company.status == "blacklisted":
             return "Your company is blacklisted. Contact admin for more details."
-        
         return redirect("/company/dashboard")
+    elif user.role == "student":   
+        if user.status == "blocked":
+            return "Your account is blocked. Contact admin for more details."
+        return redirect("/student/dashboard")
     else:
         return redirect("/student/dashboard")
 
@@ -283,6 +286,11 @@ def delete_drive(drive_id):
 @app.route("/student/dashboard")
 def student_dashboard():
     user_id = session.get("user_id")
+    user = User.query.get(user_id)
+
+    if user.status == "blocked":
+        session.clear()
+        return "Your account has been blocked. Contact admin!"
 
     drives = PlacementDrive.query.filter_by(status="approved").all()
 
@@ -309,7 +317,11 @@ def student_dashboard():
 @app.route("/apply/<int:drive_id>")
 def apply(drive_id):
     user_id = session.get("user_id")
+    user = User.query.get(user_id)
 
+    if user.status == "blocked":
+        return "Blocked users cannot apply"
+    
     # Prevent duplicate application
     existing = Application.query.filter_by(
         student_id=user_id,
@@ -456,6 +468,85 @@ def view_company_profile(company_id):
         user=user,
         role=session.get("role")
     )
+
+# ---------------- COMPANY ACTION ROTUES (FOR ADMIN) ----------------
+@app.route("/admin/company/update_status/<int:company_id>/<status>")
+def update_company_status(company_id, status):
+
+    if session.get("role") != "admin":
+        return "Unauthorized"
+
+    company = Company.query.get_or_404(company_id)
+
+    ALLOWED = ["approved", "rejected", "blacklisted"]
+
+    if status not in ALLOWED:
+        return "Invalid status"
+
+    company.status = status
+    db.session.commit()
+
+    return redirect("/admin/companies")
+
+# ---------------- DRIVE ACTION ROUTES (FOR ADMIN) ----------------
+@app.route("/admin/drive/update_status/<int:drive_id>/<status>")
+def update_drive_status(drive_id, status):
+
+    if session.get("role") != "admin":
+        return "Unauthorized"
+
+    drive = PlacementDrive.query.get_or_404(drive_id)
+
+    ALLOWED = ["approved", "rejected", "suspended", "terminated"]
+
+    if status not in ALLOWED:
+        return "Invalid status"
+
+    drive.status = status
+    db.session.commit()
+
+    return redirect("/admin/drives")
+
+# ---------------- ADMIN STUDENTS ROUTE ----------------
+@app.route("/admin/students")
+def admin_students():
+
+    if session.get("role") != "admin":
+        return "Unauthorized"
+
+    students = User.query.filter_by(role="student").all()
+
+    profiles = {p.user_id: p for p in StudentProfile.query.all()}
+    apps = Application.query.all()
+    drives = {d.id: d for d in PlacementDrive.query.all()}
+    companies = {c.id: c for c in Company.query.all()}
+
+    return render_template(
+        "admin_students.html",
+        students=students,
+        profiles=profiles,
+        apps=apps,
+        drives=drives,
+        companies=companies
+    )
+
+# ---------------- STUDENT BLOCK/UNBLOCK (FOR ADMIN) ----------------
+@app.route("/admin/student/toggle/<int:user_id>")
+def toggle_student(user_id):
+
+    if session.get("role") != "admin":
+        return "Unauthorized"
+
+    student = User.query.get_or_404(user_id)
+
+    if student.role != "student":
+        return "Invalid"
+
+    student.status = "blocked" if student.status == "active" else "active"
+
+    db.session.commit()
+
+    return redirect("/admin/students")
 
 # ---------------- LOGOUT ----------------
 @app.route("/logout")

@@ -10,6 +10,7 @@ class User(db.Model):
     email = db.Column(db.String(), unique=True, nullable=False)
     password = db.Column(db.String(), nullable=False)
     role = db.Column(db.String(), nullable=False)
+    status = db.Column(db.String(), default="active")
 
 
 # ---------------- COMPANY ----------------

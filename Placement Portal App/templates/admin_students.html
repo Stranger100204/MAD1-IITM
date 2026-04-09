@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Manage Drives</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="main">
+        <div id="canvas">
+
+            <!-- NAVBAR -->
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand">Student Profile</a>
+
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active"
+                                href="{% if session.get('role') == 'admin' %}
+                                    /admin/dashboard
+                            {% elif session.get('role') == 'company' %}
+                                    /company/dashboard
+                            {% else %}
+                                    /student/dashboard
+                            {% endif %}">
+                                Home
+                                </a>
+                        </li>
+
+                        <li class="nav-item">
+                                <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- CONTENT -->
+            <div id="content">
+                <h3 class="headings">Students Information</h3>
+
+                <table class="table text-center border border-3">
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Roll No</th>
+                            <th>Branch</th>
+                            <th>CGPA</th>
+                            <th>Applied For</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+
+                            <td>{{ loop.index }}</td>
+
+                            <td>{{ profiles[s.id].name or s.username }}</td>
+
+                            <td>{{ profiles[s.id].roll_no }}</td>
+                            <td>{{ profiles[s.id].branch }}</td>
+                            <td>{{ profiles[s.id].cgpa }}</td>
+
+                            <!-- APPLICATIONS -->
+                            <td>
+                                {% for app in apps if app.student_id == s.id %}
+                                    {{ companies[drives[app.drive_id].company_id].company_name }}<br>
+                                {% endfor %}
+                            </td>
+
+                            <!-- STATUS -->
+                            <td>
+                                {% if s.status == "active" %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Blocked</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- ACTION -->
+                            <td>
+                                <a href="/student/profile/{{ s.id }}" class="btn btn-info btn-sm">
+                                    View Profile
+                                </a>
+
+                                <a href="/admin/student/toggle/{{ s.id }}"
+                                class="btn btn-warning btn-sm">
+                                    {% if s.status == "active" %}
+                                        Block
+                                    {% else %}
+                                        Unblock
+                                    {% endif %}
+                                </a>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>    
+    </div>
+</body>
+</html>

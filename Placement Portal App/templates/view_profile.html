@@ -17,14 +17,14 @@
         <ul class="navbar-nav me-auto">
             <li class="nav-item">
                 <a class="nav-link active"
-                    href="{% if role == 'admin' %}
-                                /admin/dashboard
-                            {% elif role == 'company' %}
+                    href="{% if session.get('role') == 'admin' %}
+                                /admin/students
+                        {% elif session.get('role') == 'company' %}
                                 /company/dashboard
-                            {% else %}
+                        {% else %}
                                 /student/dashboard
-                            {% endif %}">
-                    Home
+                        {% endif %}">    
+                    Back
                     </a>
             </li>
         </ul>

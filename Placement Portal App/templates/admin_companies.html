@@ -78,31 +78,14 @@
 
                             <!-- ACTION -->
                             <td>
-                                {% if c.status == "pending" %}
-                                    <a href="/admin/company/approve/{{ c.id }}" 
-                                    class="btn btn-success btn-sm">Approve</a>
+                                <a href="{% if c.status != 'approved' %}/admin/company/update_status/{{ c.id }}/approved{% else %}#{% endif %}"
+   class="btn btn-success btn-sm {% if c.status == 'approved' %}disabled{% endif %}">Approve</a>
 
-                                    <a href="/admin/company/reject/{{ c.id }}" 
-                                    class="btn btn-danger btn-sm">Reject</a>
+                                <a href="{% if c.status != 'rejected' %}/admin/company/update_status/{{ c.id }}/rejected{% else %}#{% endif %}"
+   class="btn btn-danger btn-sm {% if c.status == 'rejected' %}disabled{% endif %}">Reject</a>
 
-                                    <a href="/admin/company/blacklist/{{ c.id }}"
-                                       class="btn btn-warning btn-sm">Blacklist</a>
-
-                                {% elif c.status == "approved" %}
-                                    <button class="btn btn-secondary btn-sm" disabled>
-                                        Approved
-                                    </button>
-
-                                {% elif c.status == "rejected" %}
-                                    <button class="btn btn-secondary btn-sm" disabled>
-                                        Rejected
-                                    </button>
-                                
-                                {% elif c.status == "blacklisted" %}
-                                    <button class="btn btn-secondary btn-sm" disabled>
-                                        Blacklisted
-                                    </button>
-                                {% endif %}
+                                <a href="{% if c.status != 'blacklisted' %}/admin/company/update_status/{{ c.id }}/blacklisted{% else %}#{% endif %}"
+   class="btn btn-dark btn-sm {% if c.status == 'blacklisted' %}disabled{% endif %}">Blacklist</a>
                             </td>
 
                         </tr>

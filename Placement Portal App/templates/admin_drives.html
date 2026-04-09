@@ -64,35 +64,67 @@
                                     <span class="badge bg-success">Approved</span>
 
                                 {% elif d.status == "rejected" %}
-                                    <span class="badge bg-dark">Rejected</span>
+                                    <span class="badge bg-danger">Rejected</span>
+
+                                {% elif d.status == "suspended" %}
+                                    <span class="badge bg-warning">Suspended</span>
+
+                                {% elif d.status == "terminated" %}
+                                    <span class="badge bg-dark">Terminated</span>
 
                                 {% else %}
-                                    <span class="badge bg-warning">Pending</span>
+                                    <span class="badge bg-secondary">Pending</span>
                                 {% endif %}
                             </td>
 
                             <!-- ACTION -->
                             <td>
-                                {% if d.status == "pending" %}
-                                    <a href="/admin/drive/approve/{{ d.id }}" 
-                                       class="btn btn-success btn-sm">Approve</a>
 
-                                    <a href="/admin/drive/reject/{{ d.id }}" 
-                                       class="btn btn-danger btn-sm">Reject</a>
-                                    
-                                    <a href="/admin/drive/delete/{{ d.id }}" 
-                                        class="btn btn-warning btn-sm">Delete</a>
+                                {% if d.status == "pending" %}
+
+                                    <a href="/admin/drive/update_status/{{ d.id }}/approved"
+                                    class="btn btn-success btn-sm">Approve</a>
+
+                                    <a href="/admin/drive/update_status/{{ d.id }}/rejected"
+                                    class="btn btn-danger btn-sm">Reject</a>
+
+                                    <a href="/admin/drive/delete/{{ d.id }}"
+                                    class="btn btn-warning btn-sm">Delete</a>
 
                                 {% elif d.status == "approved" %}
-                                    <button class="btn btn-secondary btn-sm" disabled>
-                                        Approved
-                                    </button>
+
+                                    <a href="/admin/drive/update_status/{{ d.id }}/suspended"
+                                    class="btn btn-warning btn-sm">Suspend</a>
+
+                                    <a href="/admin/drive/update_status/{{ d.id }}/terminated"
+                                    class="btn btn-dark btn-sm">Terminate</a>
+
+                                {% elif d.status == "suspended" %}
+
+                                    <a href="/admin/drive/update_status/{{ d.id }}/approved"
+                                    class="btn btn-success btn-sm">Resume</a>
+
+                                    <a href="/admin/drive/update_status/{{ d.id }}/terminated"
+                                    class="btn btn-dark btn-sm">Terminate</a>
+
+                                {% elif d.status == "terminated" %}
+
+                                    <a href="/admin/drive/update_status/{{ d.id }}/approved"
+                                    class="btn btn-success btn-sm">Re-Activate</a>
+
+                                    <a href="/admin/drive/delete/{{ d.id }}"
+                                    class="btn btn-secondary btn-sm">Delete</a>
 
                                 {% elif d.status == "rejected" %}
-                                    <button class="btn btn-dark btn-sm" disabled>
-                                        Rejected
-                                    </button>
+
+                                    <a href="/admin/drive/update_status/{{ d.id }}/approved"
+                                    class="btn btn-success btn-sm">Approve</a>
+
+                                    <a href="/admin/drive/delete/{{ d.id }}"
+                                    class="btn btn-secondary btn-sm">Delete</a>
+
                                 {% endif %}
+
                             </td>
 
                         </tr>
