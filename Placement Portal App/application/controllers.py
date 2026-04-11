@@ -530,7 +530,84 @@ def admin_students():
         companies=companies
     )
 
-# ---------------- STUDENT BLOCK/UNBLOCK (FOR ADMIN) ----------------
+
+# ---------------- SEARCH ROUTE ----------------
+@app.route("/admin/search")
+def admin_search():
+
+    if session.get("role") != "admin":
+        return "Unauthorized"
+
+    query = request.args.get("q")
+    search_type = request.args.get("type")   # 🔥 NEW
+
+    if not query:
+        return redirect("/admin/dashboard")
+
+    # Default empty lists
+    students = []
+    companies = []
+    drives = []
+
+    # Mapping
+    profiles = {p.user_id: p for p in StudentProfile.query.all()}
+    company_map = {c.id: c for c in Company.query.all()}
+
+    # 🔍 STUDENT SEARCH
+    if search_type == "student":
+
+        students = db.session.query(User).join(StudentProfile).filter(
+            User.role == "student",
+            (
+                User.username.ilike(f"%{query}%") |
+                StudentProfile.name.ilike(f"%{query}%")
+            )
+        ).all()
+
+        # 🔥 HANDLE ID SEARCH
+        clean_query = query.upper().replace("STU-", "").strip()
+
+        if clean_query.isdigit():
+            real_id = int(clean_query) + 1   # +1 because admin is ID 1
+
+            students += User.query.filter_by(
+                id=real_id,
+                role="student"
+            ).all()
+
+    # 🔍 COMPANY SEARCH
+    elif search_type == "company":
+
+        companies = Company.query.filter(
+            Company.company_name.contains(query)
+        ).all()
+
+        if query.isdigit():
+            companies += Company.query.filter_by(id=int(query)).all()
+
+    # 🔍 DRIVE SEARCH
+    elif search_type == "drive":
+
+        drives = PlacementDrive.query.filter(
+            PlacementDrive.job_title.contains(query)
+        ).all()
+
+    # 🔥 REMOVE DUPLICATES (important)
+    students = list({s.id: s for s in students}.values())
+    companies = list({c.id: c for c in companies}.values())
+
+    return render_template(
+        "search_results.html",
+        students=students,
+        companies=companies,
+        drives=drives,
+        profiles=profiles,
+        companies_map=company_map,   # for drive display
+        type=search_type,
+        query=query
+    )
+
+# ---------------- BLOCK/UNBLOCK STUDENT ----------------
 @app.route("/admin/student/toggle/<int:user_id>")
 def toggle_student(user_id):
 

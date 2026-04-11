@@ -51,8 +51,8 @@
                     <tbody>
                         {% for app in apps %}
                         <tr>
-                            <td>{{ app.id }}</td>
-                            <td>{{ users[app.student_id].username }}</td>
+                            <td>STU-{{ "%03d"|format(app.student_id - 1) }}</td>
+                            <td>{{ profiles[app.student_id].name or users[app.student_id].username }}</td>
                             <td>{{ profiles[app.student_id].roll_no }}</td>
                             <td>{{ profiles[app.student_id].branch }}</td>
                             <td>{{ profiles[app.student_id].cgpa }}</td>

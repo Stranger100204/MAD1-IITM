@@ -33,6 +33,18 @@
                         </li>
                         
                     </ul>
+                    
+                    <form class="d-flex ms-auto" method="GET" action="/admin/search">
+                        <input type="hidden" name="type" value="student">
+                        <input class="form-control me-2"
+                            type="search"
+                            name="q"
+                            placeholder="Search students...">
+
+                        <button class="btn btn-outline-success" type="submit">
+                            Search
+                        </button>
+                    </form>
                 </div>
             </nav>
 
@@ -59,7 +71,7 @@
                         {% for s in students %}
                         <tr>
 
-                            <td>{{ loop.index }}</td>
+                            <td>STU-{{ "%03d"|format(s.id - 1) }}</td>
 
                             <td>{{ profiles[s.id].name or s.username }}</td>
 

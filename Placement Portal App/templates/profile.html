@@ -37,9 +37,16 @@
 
                     <form method="post">
 
+                        <!-- Student ID -->
+                        <div class="mb-3">
+                            <label>Student ID</label>
+                            <input type="text" class="form-control"
+                                value="STU-{{ "%03d"|format(profile.user_id - 1) }}" disabled>
+                        </div>
+
                         <!-- Student's Name -->
                         <div class="mb-3">
-                            <label>Student's Name</label>
+                            <label>Student Name</label>
                             <input type="text" name="name" class="form-control" value="{{ profile.name}}" disabled>
                         </div>
 

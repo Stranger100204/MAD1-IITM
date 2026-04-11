@@ -48,6 +48,10 @@
                         <th colspan="2">Basic Information</th>
                     </tr>
                     <tr>
+                        <td>Student ID</td>
+                        <td>STU-{{ "%03d"|format(profile.user_id - 1) }}</td>
+                    </tr>
+                    <tr>
                         <td>Student Name</td>
                         <td>{{ profile.name }}</td>
                     </tr>
