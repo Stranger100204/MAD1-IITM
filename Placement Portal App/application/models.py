@@ -65,3 +65,4 @@ class StudentProfile(db.Model):
     branch = db.Column(db.String())
     summary = db.Column(db.String())
     skills = db.Column(db.String())
+    resume = db.Column(db.String())

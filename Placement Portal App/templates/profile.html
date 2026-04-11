@@ -35,7 +35,29 @@
 
                 <div class="card shadow-sm p-4">
 
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
+
+                        <div class="mb-3">
+                            <label class="form-label">Upload Resume</label>
+                            <input type="file" name="resume" class="form-control">
+                        </div>
+
+                        {% if profile.resume %}
+                        <div class="mb-3">
+                            <label class="form-label">Current Resume</label>
+                            <div class="d-flex align-items-center gap-2">
+
+                                <i class="bi bi-paperclip"></i>
+
+                                <a href="/static/resumes/{{ profile.resume }}" 
+                                    target="_blank" 
+                                    class="text-decoration-none fw-semibold">
+                                    {{ profile.resume }}
+                                </a>
+
+                            </div>
+                        </div>
+                        {% endif %}
 
                         <!-- Student ID -->
                         <div class="mb-3">

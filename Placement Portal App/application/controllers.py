@@ -3,6 +3,8 @@ from .models import *
 from .database import db
 from datetime import datetime
 import random
+import os
+from werkzeug.utils import secure_filename
 
 app = Blueprint("app", __name__)
 
@@ -116,10 +118,19 @@ def register_company():
 # ---------------- ADMIN DASHBOARD ----------------
 @app.route("/admin/dashboard")
 def admin_dashboard():
-    companies = Company.query.all()
-    drives = PlacementDrive.query.all()
-    students = User.query.filter_by(role="student").all()
-    return render_template("admin_dash.html", companies=companies, drives=drives, students=students)
+
+    total_students = User.query.filter_by(role="student").count()
+    total_companies = Company.query.count()
+    total_drives = PlacementDrive.query.count()
+    total_applications = Application.query.count()
+
+    return render_template(
+        "admin_dash.html",
+        total_students=total_students,
+        total_companies=total_companies,
+        total_drives=total_drives,
+        total_applications=total_applications
+    )
 
 # ---------------- ADMIN COMPANIES ----------------
 @app.route("/admin/companies")
@@ -409,6 +420,16 @@ def profile():
         user.email = request.form.get("email")
 
         name = request.form.get("name")
+        file = request.files.get("resume")
+
+        if file and file.filename != "":
+            filename = secure_filename(file.filename)
+
+            filepath = os.path.join("static/resumes", filename)
+            file.save(filepath)
+
+            profile.resume = filename
+            
         if name:
             profile.name = name
 

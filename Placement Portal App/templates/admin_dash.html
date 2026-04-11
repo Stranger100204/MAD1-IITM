@@ -6,87 +6,158 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         #content{
-            padding: 10px;
+            padding: 20px;
+            margin-bottom: 40px;   /* gives bottom space */
+        }
+
+        #canvas{
+            min-height: 100vh;    /* makes page full height */
+        }
+
+        #main{
+            min-height: 100vh;
         }
     </style>
 </head>
-<body>
-    <div id="main">
-        <div id="canvas">
+<body class="bg-light">
 
-            <!-- NAVBAR -->
-            <nav class="navbar navbar-expand-lg bg-body-tertiary">
-                <div class="container-fluid">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand">Admin Panel</a>
 
-                    <a class="navbar-brand">Admin Panel</a>
-
-                    <!-- LEFT SIDE LINKS -->
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/dashboard">Home</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="/logout">Logout</a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-            <!-- CONTENT -->
-            <div id="content">
-                <h3 class="headings">Admin Controls</h3>
-
-                <table class="table text-center border border-3">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Module</th>
-                            <th>Description</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        <tr>
-                            <td>1</td>
-                            <td>Companies</td>
-                            <td>Approve or manage registered companies</td>
-                            <td>
-                                <a href="/admin/companies" class="btn btn-primary">
-                                    Manage Companies
-                                </a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>2</td>
-                            <td>Placement Drives</td>
-                            <td>Approve or manage placement drives</td>
-                            <td>
-                                <a href="/admin/drives" class="btn btn-primary">
-                                    Manage Drives
-                                </a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>3</td>
-                            <td>Students Info</td>
-                            <td>Overview student registrations and applications</td>
-                            <td>
-                                <a href="/admin/students" class="btn btn-primary">
-                                    Overview Students
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-
-                </table>
-            </div>
-
-        </div>    
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/dashboard">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
     </div>
+</nav>
+
+<!-- PAGE CONTENT -->
+<div class="container py-4">
+
+    <!-- HEADING -->
+    <h3 class="text-center mb-4">Statistical Overview</h3>
+
+    <!-- STATS CARDS -->
+    <div class="row text-center mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h5>Students</h5>
+                <h3>{{ total_students }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h5>Companies</h5>
+                <h3>{{ total_companies }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h5>Drives</h5>
+                <h3>{{ total_drives }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow p-3">
+                <h5>Applications</h5>
+                <h3>{{ total_applications }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CHART -->
+    <div class="card shadow p-4 mb-5">
+        <canvas id="statsChart"></canvas>
+    </div>
+
+    <!-- ADMIN CONTROLS -->
+    <div class="card shadow p-4">
+
+        <h4 class="mb-3 text-center">Admin Controls</h4>
+
+        <table class="table text-center align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Module</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Companies</td>
+                    <td>Approve or manage registered companies</td>
+                    <td>
+                        <a href="/admin/companies" class="btn btn-primary">
+                            Manage Companies
+                        </a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>2</td>
+                    <td>Placement Drives</td>
+                    <td>Approve or manage placement drives</td>
+                    <td>
+                        <a href="/admin/drives" class="btn btn-primary">
+                            Manage Drives
+                        </a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>3</td>
+                    <td>Students Info</td>
+                    <td>Overview student registrations and applications</td>
+                    <td>
+                        <a href="/admin/students" class="btn btn-primary">
+                            Overview Students
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<!-- CHART SCRIPT -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('statsChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Students', 'Companies', 'Drives', 'Applications'],
+        datasets: [{
+            label: 'Placement Statistics',
+            data: [
+                {{ total_students }},
+                {{ total_companies }},
+                {{ total_drives }},
+                {{ total_applications }}
+            ]
+        }]
+    }
+});
+</script>
+
 </body>
 </html>
